@@ -13,11 +13,14 @@ const render = require("./lib/htmlRenderer");
 // Write code to use inquirer to gather information about the development team members,
 // and to create objects for each team member (using the correct classes as blueprints!)
 
-let engAmt = 0
-let intAmt = 0
+let idNum = 2;
+let allEmployees = [];
+let engAmt = 0;
+let intAmt = 0;
+let html = "";
 
-function askInitial() {
-    return inquirer
+askInitial = () =>
+    inquirer
         .prompt([
             { type: "input", name: "mgrName", message: "What is the team manager's name?" },
             { type: "input", name: "mgrEmail", message: "What is their email address?" },
@@ -27,17 +30,15 @@ function askInitial() {
 
         ])
         .then(val => {
-            console.log(val.mgrName);
-            console.log(val.mgrEmail);
-            console.log(val.mgrOffice);
+
+            const manager = new Manager(val.mgrName, 1, val.mgrEmail, val.mgrOffice);
+            allEmployees.push(manager);
+
             engAmt = val.engAmt
             intAmt = val.intAmt
-            console.log(engAmt);
-            console.log(intAmt);
-
 
             if (engAmt == 0 && intAmt == 0) {
-                console.log("You have no team members at all? Guess we're done here.");
+                renderAndPrint();
             } else if (isNaN(engAmt) || isNaN(intAmt)) {
                 console.log("Please enter a numerical value for the amount of engineers and interns on the team. Guess we're done here.");
             } else if (engAmt == 0) {
@@ -48,66 +49,85 @@ function askInitial() {
                 askEngineer();
             }
         })
-}
 
-function askEngineer() {
-    return inquirer
+
+askEngineer = () =>
+    inquirer
         .prompt([
             { type: "input", name: "engName", message: "Please enter the name of an Engineer on the team:" },
             { type: "input", name: "engEmail", message: "What is their email address?" },
             { type: "input", name: "engGithub", message: "What is their GitHub username?" },
         ])
         .then(val => {
-            console.log(val.engName);
-            console.log(val.engEmail);
-            console.log(val.engGithub);
+
+            const engineer = new Engineer(val.engName, idNum, val.engEmail, val.engGithub);
+            allEmployees.push(engineer);
+
             engAmt--;
+            idNum++;
 
             if (engAmt > 0) {
-                console.log("On to the next engineer!")
+                console.log("On to the next engineer!");
                 askEngineer();
             } else if (intAmt == 0) {
-                console.log("No more engineers, and you have no interns, Guess we're done here!")
+                renderAndPrint();
             } else {
-                console.log("No more engineers, moving on the the interns!")
+                console.log("That's all the engineers, now for the interns!");
                 askIntern();
             }
-        })
-}
+        });
 
-function askIntern() {
-    return inquirer
+
+askIntern = () =>
+    inquirer
         .prompt([
             { type: "input", name: "intName", message: "Please enter the name of an Intern on the team:" },
             { type: "input", name: "intEmail", message: "What is their email address?" },
             { type: "input", name: "intSchool", message: "What school did they attend?" },
         ])
         .then(val => {
-            console.log(val.intName);
-            console.log(val.intEmail);
-            console.log(val.intSchool);
+
+            const intern = new Intern(val.intName, idNum, val.intEmail, val.intSchool);
+            allEmployees.push(intern);
+
             intAmt--;
+            idNum++;
 
             if (intAmt > 0) {
                 console.log("On to the next intern!")
                 askIntern();
             } else {
-                console.log("That should be everyone!")
+                renderAndPrint();
             }
         })
-}
+
+renderAndPrint = () => {
+
+    // After the user has input all employees desired, call the `render` function (required
+    // above) and pass in an array containing all employee objects; the `render` function will
+    // generate and return a block of HTML including templated divs for each employee!
+
+    console.log("That's everyone!")
+    html = render(allEmployees);
+
+    // After you have your html, you're now ready to create an HTML file using the HTML
+    // returned from the `render` function. Now write it to a file named `team.html` in the
+    // `output` folder. You can use the variable `outputPath` above target this location.
+    // Hint: you may need to check if the `output` folder exists and create it if it
+    // does not.
+
+    fs.writeFile(outputPath, html, (err) =>
+        err ? console.error(err) : console.log('Success! Team Profile written to team.html!')
+    );
+
+    idNum = 2;
+    allEmployees = [];
+    engAmt = 0;
+    intAmt = 0;
+
+};
 
 askInitial();
-
-// After the user has input all employees desired, call the `render` function (required
-// above) and pass in an array containing all employee objects; the `render` function will
-// generate and return a block of HTML including templated divs for each employee!
-
-// After you have your html, you're now ready to create an HTML file using the HTML
-// returned from the `render` function. Now write it to a file named `team.html` in the
-// `output` folder. You can use the variable `outputPath` above target this location.
-// Hint: you may need to check if the `output` folder exists and create it if it
-// does not.
 
 // HINT: each employee type (manager, engineer, or intern) has slightly different
 // information; write your code to ask different questions via inquirer depending on
