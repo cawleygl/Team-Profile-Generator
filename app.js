@@ -19,7 +19,8 @@ let engAmt = 0;
 let intAmt = 0;
 let html = "";
 
-askInitial = () =>
+askInitial = () => {
+    console.log("Let's get started!");
     inquirer
         .prompt([
             { type: "input", name: "mgrName", message: "What is the team manager's name?" },
@@ -40,16 +41,16 @@ askInitial = () =>
             if (engAmt == 0 && intAmt == 0) {
                 renderAndPrint();
             } else if (isNaN(engAmt) || isNaN(intAmt)) {
-                console.log("Please enter a numerical value for the amount of engineers and interns on the team. Guess we're done here.");
+                console.log("Please enter a numerical value for the amount of engineers and interns on the team.");
             } else if (engAmt == 0) {
-                console.log("You have no engineers, let's start with the interns.");
+                console.log("Let's start with the interns.");
                 askIntern();
             } else {
                 console.log("Let's start with the engineers.");
                 askEngineer();
             }
         })
-
+};
 
 askEngineer = () =>
     inquirer
